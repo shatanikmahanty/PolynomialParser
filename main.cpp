@@ -9,7 +9,7 @@ using namespace std;
 
 class Variable {
     char varName;
-    float coefficient;
+    double coefficient;
     double power;
 
 public:
@@ -19,7 +19,7 @@ public:
         this->varName = varNam;
     }
 
-    void setCoefficient(float coEff) {
+    void setCoefficient(double coEff) {
         this->coefficient = coEff;
     }
 
@@ -72,7 +72,7 @@ public:
         return varName;
     }
 
-    float getCoefficient() const {
+    double getCoefficient() const {
         return coefficient;
     }
 
@@ -82,7 +82,7 @@ public:
     ///End of getters
 
     ///Parameterized constructor
-    Variable(char varName, float coefficient, double power) {
+    Variable(char varName, double coefficient, double power) {
         this->varName = varName;
         this->coefficient = coefficient;
         this->power = power;
@@ -122,7 +122,7 @@ Variable makeVariable(string expression, int &i, bool isNegative) {
         /// If / found  -> There is a fractional coefficient
     else if (coEff.find('/') != string::npos) {
         vector<string> splitStr = simple_tokenizer(coEff, '/');
-        float co = 1;
+        double co = 1;
         int j = 0;
         for (const auto &val: splitStr) {
             if (j == 0) {
@@ -187,34 +187,22 @@ Variable makeVariable(string expression, int &i, bool isNegative) {
     return var;
 }
 
-int main() {
-    string polyExpression;
-    cout << "Enter a polynomial\n(Use ^ to denote to the power of a variable)\n";
-    getline(cin, polyExpression);
+void printResult(const list<Variable> &list) {
 
-    ///Remove spaces
-    polyExpression.erase(remove_if(polyExpression.begin(), polyExpression.end(), isspace), polyExpression.end());
-
-    ///List to store objects of parsed variables
-    list<Variable> varList;
-
-    ///Call function make variable based on signedness
-    for (int i = 0; i < polyExpression.length();) {
-        if (polyExpression[i] == '-') {
-            varList.push_back(makeVariable(polyExpression, i, true));
-        } else if (polyExpression[i] == '+' || isalnum(polyExpression[i])) {
-            varList.push_back(makeVariable(polyExpression, i, false));
+    int i = 0;
+    for (Variable var: list) {
+        if (var.getCoefficient() > 0 && i != 0) {
+            cout << "+ " << var;
         } else {
-            cout << "Invalid expression!";
-            return -1;
+            cout << var;
         }
+        i++;
     }
+}
 
-    varList.sort([](const Variable &f, const Variable &s) { return f.getPower() > s.getPower(); });
+list<Variable> compute(list<Variable> varList) {
 
-    ///list to store solved objects
     list<Variable> solvedList;
-
     ///Traversing variable list to get final result
     for (int i = 0; i < varList.size(); i++) {
         auto it = varList.begin();
@@ -263,18 +251,75 @@ int main() {
             solvedList.push_back(var);
         }
     }
+    return solvedList;
+}
 
-    int i = 0;
+///Takes in a value and multiplies the list with it
+list<Variable> scalarProduct(const list<Variable>& List,double value){
+    list<Variable> solvedList;
+    for (auto var : List) {
+        var.setCoefficient(value * var.getCoefficient());
+        solvedList.push_back(var);
+    }
+    
+    return solvedList;
+}
+
+int main() {
+    string polyExpression;
+    cout << "Enter a polynomial\n(Use ^ to denote to the power of a variable)\n";
+    getline(cin, polyExpression);
+
+    ///Remove spaces
+    polyExpression.erase(remove_if(polyExpression.begin(), polyExpression.end(), isspace), polyExpression.end());
+
+    ///List to store objects of parsed variables
+    list<Variable> varList;
+
+    ///Call function make variable based on signedness
+    for (int i = 0; i < polyExpression.length();) {
+        if (polyExpression[i] == '-') {
+            varList.push_back(makeVariable(polyExpression, i, true));
+        } else if (polyExpression[i] == '+' || isalnum(polyExpression[i])) {
+            varList.push_back(makeVariable(polyExpression, i, false));
+        } else {
+            cout << "Invalid expression!";
+            return -1;
+        }
+    }
+
+    varList.sort([](const Variable &f, const Variable &s) { return f.getPower() > s.getPower(); });
+
+    ///list to store solved objects
+    list<Variable> solvedList;
+
+    solvedList = compute(varList);
 
     ///Printing result
-    for (Variable var: solvedList) {
-        if (var.getCoefficient() > 0 && i != 0) {
-            cout << "+ " << var;
-        } else {
-            cout << var;
-        }
-        i++;
+    cout << "Parsed expression : \n";
+    printResult(solvedList);
+    
+    char ch;
+    cout << "\nDo you want to perform scalar multiplication? (y/n)\n";
+    
+    cin >> ch;
+    
+    ch = tolower(ch);
+    
+    double value;
+    
+    if(ch == 'y'){
+        cout << "Enter the value to be multiplied :\n";
+        cin >> value;
+    }else{
+        return 1;
     }
+
+    ///Performing scalar product
+    solvedList = scalarProduct(solvedList,value);
+
+    cout << "Parsed expression after scalar multiplication : \n";
+    printResult(solvedList);
 
     return 0;
 }

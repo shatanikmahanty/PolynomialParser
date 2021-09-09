@@ -6,4 +6,5 @@
 
 - [x] Can parse any length of named variables
 - [x] Ability to parse fractional coefficients and powers
+- [x] Perform Scalar Product
 - [ ] Exception handling
