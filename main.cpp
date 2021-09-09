@@ -8,9 +8,9 @@
 using namespace std;
 
 class Variable {
-    char varName{};
-    float coefficient{};
-    double power{};
+    char varName;
+    float coefficient;
+    double power;
 
 public:
 
