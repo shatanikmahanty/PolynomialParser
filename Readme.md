@@ -6,3 +6,4 @@
 
 - [x] Can parse any length of named variables
 - [x] Ability to parse fractional coefficients and powers
+- [ ] Exception handling
